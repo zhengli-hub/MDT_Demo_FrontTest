@@ -1,5 +1,6 @@
 // Prepare the map
-const map = L.map('map').setView([43.063, -89.42], 13); // Set the centre point and zoom level
+
+const map = L.map('my-map').setView([43.063, -89.42], 13); // Set the centre point and zoom level
 
 // Load OpenStreetMap as tile
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
