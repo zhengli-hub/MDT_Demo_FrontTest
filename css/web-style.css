@@ -1,3 +1,35 @@
+/* lab logo code */
 .web-logo {
     width: 7rem;
+}
+
+/* animation code */
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+.camera-blinker {
+    /* change the blinker speed by changing the time */
+  animation: blinker 0.4s linear infinite; 
+}
+
+.vis-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.vis-container video {
+    margin-right: 14px;
+}
+
+.leaflet-popup-content{
+    width: max-content !important;
+}
+
+.leaflet-popup-content-wrapper{
+    width: max-content !important;
 }

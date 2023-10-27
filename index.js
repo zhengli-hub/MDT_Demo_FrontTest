@@ -1,6 +1,6 @@
 // Prepare the map
 
-const map = L.map('my-map').setView([43.063, -89.42], 13); // Set the centre point and zoom level
+const map = L.map('Madison-map').setView([43.063, -89.42], 13); // Set the centre point and zoom level
 
 // Load OpenStreetMap as tile
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -25,31 +25,129 @@ let camblueIcon = new camIcon({
 });
 let camredIcon = new camIcon({
     iconUrl: './icon/Cam_red.png',
-})
+    className: 'camera-blinker'
+  })
 let camfogIcon = new camIcon({
     iconUrl: './icon/Cam_fog.png',
     iconSize:     [107.2, 47.1],
 })
 
-const Num_of_cams = 17;
-const Id_of_cams = ['0067','0066','0065','0035','0001','0002','0003','0025','0005','0004','0049','0061','0175','0062','0178','0006','0007']
-const Loc_of_cams = [[43.09, -89.521],[43.075, -89.522],[43.0605, -89.522],[43.053, -89.503],[43.046, -89.473],[43.037, -89.452],[43.035, -89.443],[43.0355, -89.423],[43.0345, -89.406],[43.036, -89.393],[43.0405, -89.378],[43.0435, -89.369],[43.046, -89.357],[43.0415, -89.349],[43.044, -89.336],[43.0445, -89.323],[43.0455, -89.306]];
+const camData =  [
+    {   
+        id: '0067',
+        location: [43.09, -89.521],
+    },
+    {   
+        id: '0066',
+        location: [43.075, -89.522],
+    },
+    {   
+        id: '0065',
+        location: [43.0605, -89.522],
+    },
+    {   
+        id: '0035',
+        location: [43.053, -89.503],
+    },
+    {   
+        id: '0001',
+        location: [43.046, -89.473],
+    },
+    {   
+        id: '0002',
+        location: [43.037, -89.452],
+    },
+    {   
+        id: '0003',
+        location: [43.035, -89.443],
+    },
+    {   
+        id: '0025',
+        location: [43.0355, -89.423],
+    },
+    {   
+        id: '0005',
+        location: [43.0345, -89.406],
+    },
+    {   
+        id: '0004',
+        location: [43.036, -89.393],
+    },
+    {   
+        id: '0049',
+        location: [43.0405, -89.378],
+    },
+    {   
+        id: '0061',
+        location: [43.0435, -89.369],
+    },
+    {   
+        id: '0175',
+        location: [43.046, -89.357],
+    },
+    {   
+        id: '0062',
+        location: [43.0415, -89.349],
+    },
+    {   
+        id: '0178',
+        location: [43.044, -89.336],
+    },
+    {   
+        id: '0006',
+        location: [43.0445, -89.323],
+    },
+    {   
+        id: '0007',
+        location: [43.0455, -89.306],
+    },
+] 
 
-Loc_of_cams.length == Num_of_cams ? "" : alert("Number of cameras and locations don't match!");
+camData.forEach(function (ele) {
+    const videoSrc = `./video/transcoded/${ele.id}-output-h264.mp4`;
+    const marker = L.marker(ele.location,{icon:camblueIcon}).addTo(map);
+    ele.marker = marker 
+    marker.bindPopup(getPopupContent({id: ele.id, videoSrc}), { maxWidth: 1000 });
+})
 
-let Src_of_cams = [];
-for (let cam_i=1; cam_i<Num_of_cams; cam_i++){
-    Src_of_cams[cam_i] = "./video/transcoded/"+Id_of_cams[cam_i]+"-output-h264.mp4";
-    // console.log(Id_of_cams[cam_i])
-    window[`marker_cam_${cam_i}`] = L.marker(Loc_of_cams[cam_i],{icon:camblueIcon}).addTo(map);
-    window[`marker_cam_${cam_i}`].bindPopup("<h1> ID:"+Id_of_cams[cam_i]+"</h1>" +
-    "<video src="+Src_of_cams[cam_i]+" width='480' controls autoplay type='video/mp4'> </video>" +
-    "<iframe class='unity 3d' frameborder='0' width='480' height='320' src='./unity3d.html?modelID="+Id_of_cams[cam_i]+"'> </iframe>");
+
+// function onMapClick(e) {
+//     let colIcon = L.marker(e.latlng,{icon:camredIcon}).addTo(map);
+//     colIcon.bindPopup("<h1> A collision happens </h1>");
+// }
+// map.on('click', onMapClick);
+
+function getPopupContent({id, videoSrc, unitySrc}) {
+    return `<h1> ID: ${id}</h1>
+    <div class="vis-container">
+        <video src='${videoSrc}' width='480' controls autoplay type='video/mp4' muted> </video>
+        <iframe class='unity 3d' frameborder='0' width='480' height='320' src='${unitySrc || "./unity3d-normal.html?modelID=" + id}'/> 
+    </div>
+   `
 }
+21
+function handleAccident ({id, videoSrc, unitySrc}) {
+    let accidentMarker = camData.filter(ele => {
+       return ele.id === id
+    })
 
-function onMapClick(e) {
-    let colIcon = L.marker(e.latlng,{icon:camredIcon}).addTo(map);
-    colIcon.bindPopup("<h1> A collision happens </h1>");
+    if (accidentMarker.length === 0) {
+        alert("No accident marker found!")
+    }
+
+    accidentMarker = accidentMarker[0]
+
+    accidentMarker.marker.setIcon(camredIcon)
+    accidentMarker.marker.setPopupContent(getPopupContent({id: accidentMarker.id, videoSrc, unitySrc}))
+
+    const normalVideoSrc = `./video/transcoded/${accidentMarker.id}-output-h264.mp4`;
+    accidentMarker.marker.on('popupclose', function() {
+        accidentMarker.marker.setIcon(camblueIcon)
+        accidentMarker.marker.setPopupContent(getPopupContent({id: accidentMarker.id, videoSrc: normalVideoSrc}))
+    })
 }
-
-map.on('click', onMapClick);
+ 
+setTimeout(function(){  
+    alert("Accident Happened!");
+   handleAccident({id:'0001', videoSrc:'./video/TrafficAccident.mp4', unitySrc: './unity3d-accident.html'})
+  }, 4000);
