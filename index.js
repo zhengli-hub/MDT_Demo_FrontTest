@@ -1,14 +1,12 @@
-// Prepare the map
-
-const map = L.map('Madison-map').setView([43.063, -89.42], 13); // Set the centre point and zoom level
-
-// Load OpenStreetMap as tile
+// Load map
+const DTMap = L.map("Madison").setView([43.063, -89.42], 13);
+// Load OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-    maxZoom: 19,
-}).addTo(map);
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+    }).addTo(DTMap);
 
-// Load all the cameras
+//Define cameras
 let camIcon = L.Icon.extend({
     options: {
         shadowUrl: './icon/Cam_shadow.png',
@@ -17,7 +15,6 @@ let camIcon = L.Icon.extend({
         shadowSize:   [57, 19.0], // size of the shadow
     }
 });
-
 let camblueIcon = new camIcon({
     iconUrl: './icon/Cam.png',
     // iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
@@ -32,7 +29,8 @@ let camfogIcon = new camIcon({
     iconSize:     [107.2, 47.1],
 })
 
-const camData =  [
+// Define camData
+const camData = [
     {   
         id: '0067',
         location: [43.09, -89.521],
@@ -101,23 +99,15 @@ const camData =  [
         id: '0007',
         location: [43.0455, -89.306],
     },
-] 
-
-camData.forEach(function (ele) {
-    const videoSrc = `./video/transcoded/${ele.id}-output-h264.mp4`;
-    const marker = L.marker(ele.location,{icon:camblueIcon}).addTo(map);
-    ele.marker = marker 
-    marker.bindPopup(getPopupContent({id: ele.id, videoSrc}), { maxWidth: 1000 });
+]
+camData.forEach(function(ele){
+    const videoSrc = `./video/transcoded/${ele.id}-output-h264.mp4`
+    const marker = L.marker(ele.location,{icon:camblueIcon}).addTo(DTMap);
+    ele.marker = marker;
+    marker.bindPopup(getPopupContent({id: ele.id, videoSrc}), {maxWidth: 1000});
 })
 
-
-// function onMapClick(e) {
-//     let colIcon = L.marker(e.latlng,{icon:camredIcon}).addTo(map);
-//     colIcon.bindPopup("<h1> A collision happens </h1>");
-// }
-// map.on('click', onMapClick);
-
-function getPopupContent({id, videoSrc, unitySrc}) {
+function getPopupContent({id, videoSrc, unitySrc}){
     return `<h1> ID: ${id}</h1>
     <div class="vis-container">
         <video src='${videoSrc}' width='480' controls autoplay type='video/mp4' muted> </video>
@@ -125,20 +115,20 @@ function getPopupContent({id, videoSrc, unitySrc}) {
     </div>
    `
 }
-21
-function handleAccident ({id, videoSrc, unitySrc}) {
+
+function handleAccident({id, videoSrc, unitySrc}){
     let accidentMarker = camData.filter(ele => {
-       return ele.id === id
+        return ele.id === id
     })
 
-    if (accidentMarker.length === 0) {
-        alert("No accident marker found!")
+    if (accidentMarker.length === 0){
+        alert ("No accident marker found!")
     }
 
     accidentMarker = accidentMarker[0]
 
     accidentMarker.marker.setIcon(camredIcon)
-    accidentMarker.marker.setPopupContent(getPopupContent({id: accidentMarker.id, videoSrc, unitySrc}))
+    accidentMarker.marker.setPopupContent(getPopupContent({id, videoSrc, unitySrc}))
 
     const normalVideoSrc = `./video/transcoded/${accidentMarker.id}-output-h264.mp4`;
     accidentMarker.marker.on('popupclose', function() {
@@ -151,3 +141,9 @@ setTimeout(function(){
     alert("Accident Happened!");
    handleAccident({id:'0001', videoSrc:'./video/TrafficAccident.mp4', unitySrc: './unity3d-accident.html'})
   }, 4000);
+
+// function onMapClick(e) {
+//     let colIcon = L.marker(e.latlng,{icon:camredIcon}).addTo(DTMap);
+//     colIcon.bindPopup("<h1> A collision happens </h1>");
+// }
+// map.on('click', onMapClick);
