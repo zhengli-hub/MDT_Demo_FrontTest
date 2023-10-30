@@ -33,3 +33,23 @@
 .leaflet-popup-content-wrapper{
     width: max-content !important;
 }
+
+@keyframes circle-breath {
+   0% {
+      box-shadow: 0 0 0 0 rgba(204, 73, 152, 60%);
+   }
+
+  60% {
+      box-shadow: 0 0 0 36px rgba(204, 73, 152, 0%);
+  }
+
+  100% {
+      box-shadow: 0 0 0 0 rgba(204, 73, 152, 0%);
+  }
+}
+
+.camera-circle-breath {
+  box-shadow: 0 0 0 0 rgb(204, 73, 152); 
+  border-radius: 80%;
+  animation: circle-breath 1.5s infinite;
+}
