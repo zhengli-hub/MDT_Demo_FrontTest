@@ -1,6 +1,42 @@
 /* lab logo code */
+.web-logo-container {
+  height: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .web-logo {
     width: 7rem;
+}
+
+.web-logo a {
+  display: block;
+}
+
+.web-logo:nth-child(1) {
+  margin-right: 10px;
+}
+
+.web-logo-sky {
+  width: 85px !important;
+}
+
+@media (min-width: 40em) {
+  .web-logo-sky {
+    width: 6rem !important;
+  }
+}
+
+@media (min-width: 64em) {
+  .web-logo-sky {
+    width: 95px !important;
+  }
+}
+
+@media (min-width: 75em) {
+  .web-logo-sky {
+    width: 115px !important;
+  }
 }
 
 /* animation code */
@@ -39,7 +75,7 @@
       box-shadow: 0 0 0 0 rgba(204, 73, 152, 60%);
    }
 
-  60% {
+  90% {
       box-shadow: 0 0 0 36px rgba(204, 73, 152, 0%);
   }
 
