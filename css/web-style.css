@@ -58,6 +58,21 @@
     margin-top: 10px;
 }
 
+.popup-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-header {
+  margin-bottom: 5px;
+}
+
+.popup-subheader {
+  font-size: 1.4rem;
+  margin: 0 !important;
+}
+
+
 .vis-container video {
     margin-right: 14px;
 }
