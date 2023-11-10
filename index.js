@@ -8,26 +8,58 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(DTMap);
 
 //Define cameras
+// let camIcon = L.Icon.extend({
+//   options: {
+//     shadowUrl: "./icon/Cam_shadow.png",
+//     popupAnchor: [0, -20],
+//     iconSize: [47, 24], // size of the icon
+//     shadowSize: [57, 19.0], // size of the shadow
+//   },
+// });
+// let camblueIcon = new camIcon({
+//   iconUrl: "./icon/Cam.png",
+//   // iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+//   // shadowAnchor: [4, 62],  // the same for the shadow
+// });
+// let camredIcon = new camIcon({
+//   iconUrl: "./icon/Cam_red.png",
+//   className: "camera-circle-breath",
+// });
+// let camfogIcon = new camIcon({
+//   iconUrl: "./icon/Cam_fog.png",
+//   iconSize: [107.2, 47.1],
+// });
+
+//Define cameras
 let camIcon = L.Icon.extend({
   options: {
-    shadowUrl: "./icon/Cam_shadow.png",
     popupAnchor: [0, -20],
-    iconSize: [47, 24], // size of the icon
-    shadowSize: [57, 19.0], // size of the shadow
+    iconSize: [48, 48], // size of the icon
   },
 });
-let camblueIcon = new camIcon({
-  iconUrl: "./icon/Cam.png",
-  // iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-  // shadowAnchor: [4, 62],  // the same for the shadow
+let camBasicIcon = new camIcon({
+  iconUrl: "./icon/Version-2/basic.png",
 });
-let camredIcon = new camIcon({
-  iconUrl: "./icon/Cam_red.png",
+let camCloudyIcon = new camIcon({
+  iconUrl: "./icon/Version-2/cloudy.png",
+  iconSize: [55, 55],
+});
+let camFoggyIcon = new camIcon({
+  iconUrl: "./icon/Version-2/foggy.png",
+  iconSize: [55, 55],
+});
+let camRainyIcon = new camIcon({
+  iconUrl: "./icon/Version-2/rainy.png",
+  iconSize: [55, 55],
+});
+let camSnowyIcon = new camIcon({
+  iconUrl: "./icon/Version-2/snowy.png",
+  iconSize: [55, 55],
+});
+let camAccidentIcon = new camIcon({
+  iconUrl: "./icon/Version-2/accident.png",
+  iconSize: [55, 55],
   className: "camera-circle-breath",
-});
-let camfogIcon = new camIcon({
-  iconUrl: "./icon/Cam_fog.png",
-  iconSize: [107.2, 47.1],
 });
 
 // Define camData
@@ -121,7 +153,7 @@ const camData = [
 // Add marker, videoSrc, textContent att into camData
 // Marker bindpopup
 camData.forEach(function (ele) {
-  const marker = L.marker(ele.location, { icon: camblueIcon }).addTo(DTMap);
+  const marker = L.marker(ele.location, { icon: camBasicIcon }).addTo(DTMap);
   ele.marker = marker;
   const videoSrc = `./video/normal-transcoded/${ele.id}-output-h264.mp4`;
   ele.videoSrc = videoSrc;
@@ -162,7 +194,7 @@ function handleAccident({ id, videoSrc, unitySrc }) {
 
   accidentMarker = accidentMarker[0];
 
-  accidentMarker.marker.setIcon(camredIcon);
+  accidentMarker.marker.setIcon(camAccidentIcon);
   const textContentAccident = `Accident detected: two vehicle collided, one of two lanes affected.<br/><span id="pop-up-timer-${accidentMarker.id}">Time since the accident occurred: 0s</span>`;
   accidentMarker.marker.setPopupContent(
     getPopupContent({
@@ -185,7 +217,7 @@ function handleAccident({ id, videoSrc, unitySrc }) {
 
   const normalVideoSrc = `./video/normal-transcoded/${accidentMarker.id}-output-h264.mp4`;
   accidentMarker.marker.on("popupclose", function () {
-    accidentMarker.marker.setIcon(camblueIcon);
+    accidentMarker.marker.setIcon(camBasicIcon);
     accidentMarker.marker.setPopupContent(
       getPopupContent({
         id,
@@ -198,7 +230,19 @@ function handleAccident({ id, videoSrc, unitySrc }) {
 }
 
 function handleWeather({ id, weatherType }) {
-  const weatherTypeList = ["clear", "foggy", "rainy", "sunny", "night"];
+  const weatherTypeList = ["basic", "cloudy", "foggy", "rainy", "snowy"];
+  // Create an object to store the mappings
+  const iconObjectMap = {
+    basic: camBasicIcon,
+    cloudy: camCloudyIcon,
+    foggy: camFoggyIcon,
+    rainy: camRainyIcon,
+    snowy: camSnowyIcon,
+  };
+  // Function to get the object based on the input string
+  function getIconObjectByInputWeather(inputWeather) {
+    return iconObjectMap[inputWeather];
+  }
 
   if (weatherTypeList.includes(weatherType)) {
   } else {
@@ -215,7 +259,7 @@ function handleWeather({ id, weatherType }) {
 
   weatherMarker = weatherMarker[0];
 
-  // weatherMarker.marker.setIcon();
+  weatherMarker.marker.setIcon(getIconObjectByInputWeather(weatherType));
 
   const weatherVideoSrc = `./video/weather-combined/${weatherType}.mp4`;
   const textContentWeather = `Current weather: ${weatherType}`;
@@ -236,7 +280,7 @@ setTimeout(function () {
     videoSrc: "./video/traffic-accident.mp4",
     unitySrc: "./unity3d-accident.html",
   });
-}, 4000);
+}, 10000);
 
 setTimeout(function () {
   handleWeather({
@@ -244,10 +288,21 @@ setTimeout(function () {
     weatherType: "foggy",
   });
   handleWeather({
-    id: "0007",
-    weatherType: "rainy",
+    id: "0066",
+    weatherType: "foggy",
   });
 }, 10);
+
+setTimeout(function () {
+  handleWeather({
+    id: "0065",
+    weatherType: "foggy",
+  });
+  handleWeather({
+    id: "0035",
+    weatherType: "foggy",
+  });
+}, 5000);
 
 // function onMapClick(e) {
 //     let colIcon = L.marker(e.latlng,{icon:camredIcon}).addTo(DTMap);
