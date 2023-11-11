@@ -276,7 +276,7 @@ function handleWeather({ id, weatherType }) {
 setTimeout(function () {
   alert("Accident Happened!");
   handleAccident({
-    id: "0001",
+    id: "0004",
     videoSrc: "./video/traffic-accident.mp4",
     unitySrc: "./unity3d-accident.html",
   });
@@ -284,23 +284,39 @@ setTimeout(function () {
 
 setTimeout(function () {
   handleWeather({
-    id: "0067",
-    weatherType: "foggy",
+    id: "0006",
+    weatherType: "rainy",
   });
   handleWeather({
-    id: "0066",
-    weatherType: "foggy",
+    id: "0007",
+    weatherType: "rainy",
   });
 }, 10);
 
 setTimeout(function () {
   handleWeather({
-    id: "0065",
-    weatherType: "foggy",
+    id: "0062",
+    weatherType: "rainy",
   });
   handleWeather({
-    id: "0035",
-    weatherType: "foggy",
+    id: "0178",
+    weatherType: "rainy",
+  });
+  handleWeather({
+    id: "0049",
+    weatherType: "rainy",
+  });
+  handleWeather({
+    id: "0061",
+    weatherType: "rainy",
+  });
+  handleWeather({
+    id: "0175",
+    weatherType: "rainy",
+  });
+  handleWeather({
+    id: "0005",
+    weatherType: "rainy",
   });
 }, 5000);
 
