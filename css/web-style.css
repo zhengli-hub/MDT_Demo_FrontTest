@@ -104,3 +104,18 @@
   border-radius: 80%;
   animation: circle-breath 1.5s infinite;
 }
+
+#statistics {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
+
+#statistics canvas {
+  max-height: 400px;
+  max-width: 50%;
+  flex: 1;  /* Each canvas will take up equal space */
+  margin: 10px; /* Optional: adds some space between the charts */
+}

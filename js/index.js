@@ -1,5 +1,5 @@
-// Load map
-const DTMap = L.map("Madison").setView([43.063, -89.42], 13);
+// Load map for camera sensor page
+const DTMap = L.map("camera-sensor-map").setView([43.063, -89.42], 13);
 // Load OpenStreetMap
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution:
@@ -150,6 +150,142 @@ const camData = [
     name: "W Beltine Hwy (43.0455, -89.306)",
   },
 ];
+
+let initialTimeLabels = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.time);
+let initialFlowData = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.flow);
+let initialSpeedData = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.speed);
+
+// Chart.js logic starts here
+function SeededRandom(seed) {
+  return function() {
+      seed = (seed * 9301 + 49297) % 233280;
+      return seed / 233280;
+  };
+}
+
+const generateData = (camDataItem, startHour, numberOfIntervals, startDate = new Date()) => {
+  const data = [];
+  let currentDate = new Date(startDate.getTime());
+
+  // Set the initial time
+  currentDate.setHours(startHour, 0, 0, 0);
+
+  let seed = Array.from(camDataItem.id).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const random = SeededRandom(seed);
+
+  for (let i = 0; i < numberOfIntervals; i++) {
+    // Format the date into 'YYYY-MM-DDTHH:MM:SS'
+    const formattedDate = currentDate.toISOString().split(".")[0];
+
+    // Generate random flow and speed values
+    const flow = Math.floor(random() * 400) + 1800; // Random number between 50 and 150
+    const speed = Math.floor(random() * 10) + 55; // Random number between 30 and 80
+
+    data.push({ time: formattedDate, flow: flow, speed: speed });
+
+    // Increment the time by 5 minutes
+    currentDate.setMinutes(currentDate.getMinutes() + 5);
+  }
+
+  return data;
+};
+
+camData.forEach((item) => {
+  // Generate data for 2 hours starting from 8 AM, with 5-minute intervals
+  item.trafficData = generateData(item, 8, 24);
+})
+
+const trafficFlowCtx = document.getElementById("traffic-flow-chart");
+const trafficSpeedCtx = document.getElementById("traffic-speed-chart");
+
+const trafficFlowChart = new Chart(trafficFlowCtx, {
+  type: "line",
+  data: {
+    labels: initialTimeLabels,
+    datasets: [
+      {
+        label: "Traffic Flow",
+        data: initialFlowData,
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
+      },
+    ],
+  },
+  responsive: true,
+  options: {
+    scales: {
+      x: {
+        type: 'time',
+        time: {
+            unit: 'minute'
+        }
+      },
+      y: {
+        title: {
+          text: "Flow (vph)",
+          display: true
+        },
+        min: 0,
+        max: 3000
+      }
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: 'Traffic Flow'
+      },
+    },
+  },
+});
+
+const trafficSpeedChart = new Chart(trafficSpeedCtx, {
+  type: "line",
+  data: {
+    labels: initialTimeLabels,
+    datasets: [
+      {
+        label: "Traffic Speed",
+        data: initialSpeedData,
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
+      },
+    ],
+  },
+  responsive: true,
+  options: {
+    scales: {
+      x: {
+        type: 'time',
+        time: {
+            unit: 'minute'
+        }
+      },
+      y: {
+        title: {
+          text: "Speed (mph)",
+          display: true
+        },
+        min: 0,
+        max: 90
+      }
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: 'Traffic Speed'
+      },
+    },
+  },
+});
+
 // Add marker, videoSrc, textContent att into camData
 // Marker bindpopup
 camData.forEach(function (ele) {
@@ -166,6 +302,22 @@ camData.forEach(function (ele) {
       maxHeight: 500,
     }
   );
+  marker.on("popupopen", (popup) => {
+    trafficFlowChart.data.labels = ele.trafficData.map((item) => item.time);
+    trafficSpeedChart.data.labels = ele.trafficData.map((item) => item.time);
+    trafficFlowChart.data.datasets[0].data = ele.trafficData.map((item) => item.flow);
+    trafficSpeedChart.data.datasets[0].data = ele.trafficData.map((item) => item.speed);
+    trafficFlowChart.update();
+    trafficSpeedChart.update();
+  })
+  marker.on("popupclose", (popup) => {
+    trafficFlowChart.data.labels = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.time);
+    trafficSpeedChart.data.labels = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.time);
+    trafficFlowChart.data.datasets[0].data = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.flow);
+    trafficSpeedChart.data.datasets[0].data = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.speed);
+    trafficFlowChart.update();
+    trafficSpeedChart.update();
+  })
 });
 
 function getPopupContent({ id, videoSrc, unitySrc, header, subheader }) {
