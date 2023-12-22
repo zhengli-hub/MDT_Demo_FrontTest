@@ -151,26 +151,40 @@ const camData = [
   },
 ];
 
-let initialTimeLabels = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.time);
-let initialFlowData = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.flow);
-let initialSpeedData = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.speed);
+let initialTimeLabels = [{ time: new Date(), flow: 0, speed: 0 }].map(
+  (item) => item.time,
+);
+let initialFlowData = [{ time: new Date(), flow: 0, speed: 0 }].map(
+  (item) => item.flow,
+);
+let initialSpeedData = [{ time: new Date(), flow: 0, speed: 0 }].map(
+  (item) => item.speed,
+);
 
 // Chart.js logic starts here
 function SeededRandom(seed) {
-  return function() {
-      seed = (seed * 9301 + 49297) % 233280;
-      return seed / 233280;
+  return function () {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
   };
 }
 
-const generateData = (camDataItem, startHour, numberOfIntervals, startDate = new Date()) => {
+const generateData = (
+  camDataItem,
+  startHour,
+  numberOfIntervals,
+  startDate = new Date(),
+) => {
   const data = [];
   let currentDate = new Date(startDate.getTime());
 
   // Set the initial time
   currentDate.setHours(startHour, 0, 0, 0);
 
-  let seed = Array.from(camDataItem.id).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  let seed = Array.from(camDataItem.id).reduce(
+    (sum, char) => sum + char.charCodeAt(0),
+    0,
+  );
   const random = SeededRandom(seed);
 
   for (let i = 0; i < numberOfIntervals; i++) {
@@ -193,7 +207,7 @@ const generateData = (camDataItem, startHour, numberOfIntervals, startDate = new
 camData.forEach((item) => {
   // Generate data for 2 hours starting from 8 AM, with 5-minute intervals
   item.trafficData = generateData(item, 8, 24);
-})
+});
 
 const trafficFlowCtx = document.getElementById("traffic-flow-chart");
 const trafficSpeedCtx = document.getElementById("traffic-speed-chart");
@@ -216,19 +230,19 @@ const trafficFlowChart = new Chart(trafficFlowCtx, {
   options: {
     scales: {
       x: {
-        type: 'time',
+        type: "time",
         time: {
-            unit: 'minute'
-        }
+          unit: "minute",
+        },
       },
       y: {
         title: {
           text: "Flow (vph)",
-          display: true
+          display: true,
         },
         min: 0,
-        max: 3000
-      }
+        max: 3000,
+      },
     },
     plugins: {
       legend: {
@@ -236,7 +250,7 @@ const trafficFlowChart = new Chart(trafficFlowCtx, {
       },
       title: {
         display: true,
-        text: 'Traffic Flow'
+        text: "Traffic Flow",
       },
     },
   },
@@ -260,19 +274,19 @@ const trafficSpeedChart = new Chart(trafficSpeedCtx, {
   options: {
     scales: {
       x: {
-        type: 'time',
+        type: "time",
         time: {
-            unit: 'minute'
-        }
+          unit: "minute",
+        },
       },
       y: {
         title: {
           text: "Speed (mph)",
-          display: true
+          display: true,
         },
         min: 0,
-        max: 90
-      }
+        max: 90,
+      },
     },
     plugins: {
       legend: {
@@ -280,7 +294,7 @@ const trafficSpeedChart = new Chart(trafficSpeedCtx, {
       },
       title: {
         display: true,
-        text: 'Traffic Speed'
+        text: "Traffic Speed",
       },
     },
   },
@@ -300,24 +314,36 @@ camData.forEach(function (ele) {
     {
       maxWidth: 1000,
       maxHeight: 500,
-    }
+    },
   );
   marker.on("popupopen", (popup) => {
     trafficFlowChart.data.labels = ele.trafficData.map((item) => item.time);
     trafficSpeedChart.data.labels = ele.trafficData.map((item) => item.time);
-    trafficFlowChart.data.datasets[0].data = ele.trafficData.map((item) => item.flow);
-    trafficSpeedChart.data.datasets[0].data = ele.trafficData.map((item) => item.speed);
+    trafficFlowChart.data.datasets[0].data = ele.trafficData.map(
+      (item) => item.flow,
+    );
+    trafficSpeedChart.data.datasets[0].data = ele.trafficData.map(
+      (item) => item.speed,
+    );
     trafficFlowChart.update();
     trafficSpeedChart.update();
-  })
+  });
   marker.on("popupclose", (popup) => {
-    trafficFlowChart.data.labels = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.time);
-    trafficSpeedChart.data.labels = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.time);
-    trafficFlowChart.data.datasets[0].data = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.flow);
-    trafficSpeedChart.data.datasets[0].data = [{time:new Date(), flow: 0, speed: 0}].map((item) => item.speed);
+    trafficFlowChart.data.labels = [
+      { time: new Date(), flow: 0, speed: 0 },
+    ].map((item) => item.time);
+    trafficSpeedChart.data.labels = [
+      { time: new Date(), flow: 0, speed: 0 },
+    ].map((item) => item.time);
+    trafficFlowChart.data.datasets[0].data = [
+      { time: new Date(), flow: 0, speed: 0 },
+    ].map((item) => item.flow);
+    trafficSpeedChart.data.datasets[0].data = [
+      { time: new Date(), flow: 0, speed: 0 },
+    ].map((item) => item.speed);
     trafficFlowChart.update();
     trafficSpeedChart.update();
-  })
+  });
 });
 
 function getPopupContent({ id, videoSrc, unitySrc, header, subheader }) {
@@ -355,12 +381,12 @@ function handleAccident({ id, videoSrc, unitySrc }) {
       unitySrc,
       header: `Location: ${accidentMarker.name}`,
       subheader: textContentAccident,
-    })
+    }),
   );
   const int = setInterval(() => {
     timeElapsed += 1;
     const timerEle = document.getElementById(
-      "pop-up-timer-" + accidentMarker.id
+      "pop-up-timer-" + accidentMarker.id,
     );
     if (timerEle) {
       timerEle.textContent = `Time since the accident occurred: ${timeElapsed}s`;
@@ -375,7 +401,7 @@ function handleAccident({ id, videoSrc, unitySrc }) {
         id,
         videoSrc: normalVideoSrc,
         header: `Location: ${accidentMarker.name}`,
-      })
+      }),
     );
     clearInterval(int);
   });
@@ -421,7 +447,7 @@ function handleWeather({ id, weatherType }) {
       videoSrc: weatherVideoSrc,
       header: `Location: ${weatherMarker.name}`,
       subheader: textContentWeather,
-    })
+    }),
   );
 }
 
