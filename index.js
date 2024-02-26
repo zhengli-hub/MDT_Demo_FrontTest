@@ -104,7 +104,7 @@ const camData =  [
 ] 
 
 camData.forEach(function (ele) {
-    const videoSrc = `./video/transcoded/${ele.id}-output-h264.mp4`;
+    const videoSrc = `https://cctv2.dot.wi.gov:443/rtplive/CCTV-13-${ele.id}/playlist.m3u8`;
     const marker = L.marker(ele.location,{icon:camblueIcon}).addTo(map);
     ele.marker = marker 
     marker.bindPopup(getPopupContent({id: ele.id, videoSrc}), { maxWidth: 1000 });
