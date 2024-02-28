@@ -305,12 +305,16 @@ const trafficSpeedChart = new Chart(trafficSpeedCtx, {
 camData.forEach(function (ele) {
   const marker = L.marker(ele.location, { icon: camBasicIcon }).addTo(DTMap);
   ele.marker = marker;
-  const videoSrc = `./video/normal-transcoded/${ele.id}-output-h264.mp4`;
+  const videoSrc = `https://cctv2.dot.wi.gov:443/rtplive/CCTV-13-${ele.id}/playlist.m3u8`;
   ele.videoSrc = videoSrc;
   const textContent = `Location:${ele.name}`;
   // ele.textContent = textContent;
   marker.bindPopup(
-    getPopupContent({ id: ele.id, videoSrc, header: textContent }),
+    getPopupContent({
+      id: ele.id,
+      videoSrc: videoSrc, // Pass the dynamically constructed URL here
+      header: textContent,
+    }),
     {
       maxWidth: 1000,
       maxHeight: 500,
@@ -344,20 +348,59 @@ camData.forEach(function (ele) {
     trafficFlowChart.update();
     trafficSpeedChart.update();
   });
-});
+    marker.on('popupopen', (popup) => {
+        // Use marker property to identify the camera ID
+        const cameraId = ele.id; // Assume each marker has a cameraId property
+        initializeVideoPlayback(cameraId);
+    });
+  });
+
+function getVideoSourceUrlById(id) {
+  let videoSrc;
+  if (id === "0175") {
+    // If the id is "0175", use cctv1 in the URL
+    videoSrc = `https://cctv1.dot.wi.gov:443/rtplive/CCTV-13-${id}/playlist.m3u8`;
+  } else {
+    // For all other ids, use cctv2 in the URL
+    videoSrc = `https://cctv2.dot.wi.gov:443/rtplive/CCTV-13-${id}/playlist.m3u8`;
+  }
+  return videoSrc;
+}
+
+function initializeVideoPlayback(videoId) {
+  const videoElement = document.getElementById(`video-${videoId}`);
+  const videoSrc = getVideoSourceUrlById(videoId); // Dynamically get the video source URL
+
+  if (Hls.isSupported()) {
+      var hls = new Hls();
+      hls.loadSource(videoSrc);
+      hls.attachMedia(videoElement);
+      hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          videoElement.play();
+      });
+  } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+      videoElement.src = videoSrc;
+      videoElement.play();
+  }
+}
+
 
 function getPopupContent({ id, videoSrc, unitySrc, header, subheader }) {
+  videoSrc = getVideoSourceUrlById(id);
   return `
     <div class="popup-wrapper">
         <h2 class="popup-header">${header}</h2>
         <p class="popup-subheader">${subheader || ""}</p>
         <div class="vis-container">
-            <video src='${videoSrc}' width='480' controls autoplay type='video/mp4' muted> </video>
-            <iframe class='unity 3d' frameborder='0' width='480' height='320' src='${
-              unitySrc || "./unity3d-normal.html?modelID=" + id
-            }'/>
+        <video id="video-${id}" width="480" controls autoplay muted class="video-stream">
+                <source src="${videoSrc}" type="application/x-mpegURL">
+        </video>
+        <iframe class='unity 3d' frameborder='0' width='480' height='320' src='${
+          unitySrc || "./unity3d-normal.html?modelID=" + id
+        }'/>
         </div>
     </div>`;
+    
 }
 
 function handleAccident({ id, videoSrc, unitySrc }) {
